@@ -31,12 +31,13 @@ export default async function handler(req, res) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-opus-4-8",
+        // Sonnet 5: near-Opus quality on vision + pricing at a fraction of the cost.
+        model: "claude-sonnet-5",
         max_tokens: 2000,
         system,
         messages: [{ role: "user", content }],
-        // Latest web-search tool (dynamic filtering) — Opus 4.8, no beta header.
-        tools: [{ type: "web_search_20260209", name: "web_search" }],
+        // Latest web-search tool (dynamic filtering); cap uses to bound per-scan cost.
+        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 3 }],
       }),
     });
 
