@@ -192,6 +192,7 @@ function ScanTab({S,profile,onLog}){
   const [err,setErr]=useState("");
   const [edit,setEdit]=useState(null);
   const fileRef=useRef(null);
+  const galleryRef=useRef(null);
 
   async function addFiles(files){
     const cap=mode==="single"?2:6;
@@ -213,7 +214,7 @@ function ScanTab({S,profile,onLog}){
     const system=`You appraise secondhand goods for an Australian op-shop reseller. Use web search for Australian secondhand prices (eBay Australia SOLD first, then Depop/Vinted) and sell speed. Estimates only, never guarantee. Reply ONLY JSON, no markdown. ${mode==="group"?"Shape: "+group:"Shape: "+single}. AUD numbers. searchTerm = concise keywords to find it on eBay. If unsure set confidence low.`;
     try{
       const r=await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({system,content})});
+        body:JSON.stringify({system,content,mode})});
       const txt=await r.text();
       let data; try{data=JSON.parse(txt);}catch{data={error:(txt||"").slice(0,180)||"No response"};}
       if(!r.ok)throw new Error(data?.error||("Search returned "+r.status));
@@ -258,13 +259,15 @@ function ScanTab({S,profile,onLog}){
             </div>
           ))}
           {imgs.length<(mode==="single"?2:6)&&status!=="loading"&&(
-            <div onClick={()=>fileRef.current?.click()} style={{width:mode==="single"?"calc(50% - 4px)":"calc(33% - 6px)",aspectRatio:"3/4",borderRadius:10,border:`1.5px dashed ${C.line}`,background:"#F6F5EF",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",cursor:"pointer",color:C.faint}}>
-              <div style={{fontSize:24}}>{mode==="single"&&imgs.length===1?"🏷️":"📷"}</div>
-              <div style={{fontSize:10.5,marginTop:4,fontWeight:600,textAlign:"center"}}>{mode==="single"?(imgs.length===0?"Item":"Tag"):"Add shelf pic"}</div>
+            <div style={{width:mode==="single"?"calc(50% - 4px)":"calc(33% - 6px)",aspectRatio:"3/4",borderRadius:10,border:`1.5px dashed ${C.line}`,background:"#F6F5EF",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,padding:6,color:C.faint}}>
+              <div style={{fontSize:10.5,fontWeight:700,textAlign:"center",color:C.ink}}>{mode==="single"?(imgs.length===0?"Add item":"Add tag"):"Add shelf pic"}</div>
+              <div onClick={()=>fileRef.current?.click()} style={{cursor:"pointer",fontSize:11,fontWeight:700,color:"#18693E",background:"#EAF5EE",border:"1px solid #18693E33",borderRadius:8,padding:"7px 8px",width:"88%",textAlign:"center"}}>📷 Camera</div>
+              <div onClick={()=>galleryRef.current?.click()} style={{cursor:"pointer",fontSize:11,fontWeight:700,color:C.ink,background:"#fff",border:`1px solid ${C.line}`,borderRadius:8,padding:"7px 8px",width:"88%",textAlign:"center"}}>🖼️ Upload</div>
             </div>
           )}
         </div>
-        <input ref={fileRef} type="file" accept="image/*" capture="environment" multiple style={{display:"none"}} onChange={e=>{addFiles(e.target.files);e.target.value="";}}/>
+        <input ref={fileRef} type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={e=>{addFiles(e.target.files);e.target.value="";}}/>
+        <input ref={galleryRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={e=>{addFiles(e.target.files);e.target.value="";}}/>
         <button onClick={scan} disabled={!imgs.length||status==="loading"} style={{...S.btn,width:"100%",marginTop:12,background:imgs.length?"linear-gradient(135deg,#18693E,#2E9E67)":C.line,color:imgs.length?"#fff":C.faint,fontSize:15,padding:"13px",boxShadow:imgs.length?"0 4px 12px rgba(24,105,62,.3)":"none"}}>
           {status==="loading"?"Searching…":mode==="single"?"Scout this item →":"Find the gem →"}</button>
         {status==="loading"&&<div style={{fontSize:12,color:C.faint,marginTop:10,display:"flex",gap:8,alignItems:"center"}}><span style={{width:13,height:13,border:`2px solid ${C.line}`,borderTopColor:C.ink,borderRadius:"50%",display:"inline-block",animation:"spin .8s linear infinite"}}/>Identifying + checking sold prices — needs signal.</div>}
