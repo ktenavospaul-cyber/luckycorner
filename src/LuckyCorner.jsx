@@ -183,9 +183,10 @@ function ScanTab({S,profile,onLog}){
   const fileRef=useRef(null);
 
   async function addFiles(files){
-    const max=mode==="single"?2:1;
-    const list=Array.from(files).slice(0,(mode==="single"?2:6)-imgs.length);
-    setImgs(p=>[...p,...(await Promise.all(list.map(readB64)))].slice(0,mode==="single"?2:6));
+    const cap=mode==="single"?2:6;
+    const list=Array.from(files).slice(0,cap-imgs.length);
+    const read=await Promise.all(list.map(readB64));
+    setImgs(p=>[...p,...read].slice(0,cap));
   }
   const rmImg=(i)=>setImgs(p=>p.filter((_,x)=>x!==i));
   const reset=()=>{setImgs([]);setRes(null);setStatus("idle");setEdit(null);setErr("");};
