@@ -39,9 +39,20 @@ function probability({net,estDays,demand,conf,target,maxDays}){
   if(net<3)p=Math.min(p,12); if(conf==="low")p=Math.min(p,55);
   return{p:Math.max(0,Math.min(100,p)),days,m,s};
 }
-async function readB64(f){return new Promise((res,rej)=>{const r=new FileReader();
-  r.onload=()=>res({data:r.result.split(",")[1],media_type:f.type,url:r.result});
-  r.onerror=()=>rej(new Error("read fail"));r.readAsDataURL(f);});}
+// Read a photo, downscale it (phone photos are huge and blow past the server's
+// request-size limit), and return compressed JPEG base64 for upload + preview.
+async function readB64(f){
+  const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();
+    r.onload=()=>res(r.result);r.onerror=()=>rej(new Error("read fail"));r.readAsDataURL(f);});
+  const img=await new Promise((res,rej)=>{const i=new Image();
+    i.onload=()=>res(i);i.onerror=()=>rej(new Error("image decode failed"));i.src=dataUrl;});
+  const MAX=1280; let w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+  if(Math.max(w,h)>MAX){const s=MAX/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+  const c=document.createElement("canvas");c.width=w;c.height=h;
+  c.getContext("2d").drawImage(img,0,0,w,h);
+  const out=c.toDataURL("image/jpeg",0.82);
+  return {data:out.split(",")[1],media_type:"image/jpeg",url:out};
+}
 const parseJSON=(t)=>JSON.parse(t.slice(t.indexOf("{"),t.lastIndexOf("}")+1));
 function csvCell(s){const v=String(s??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
 
@@ -203,7 +214,8 @@ function ScanTab({S,profile,onLog}){
     try{
       const r=await fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({system,content})});
-      const data=await r.json();
+      const txt=await r.text();
+      let data; try{data=JSON.parse(txt);}catch{data={error:(txt||"").slice(0,180)||"No response"};}
       if(!r.ok)throw new Error(data?.error||("Search returned "+r.status));
       const text=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
       const j=parseJSON(text); setRes(j);
@@ -252,7 +264,7 @@ function ScanTab({S,profile,onLog}){
             </div>
           )}
         </div>
-        <input ref={fileRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={e=>{addFiles(e.target.files);e.target.value="";}}/>
+        <input ref={fileRef} type="file" accept="image/*" capture="environment" multiple style={{display:"none"}} onChange={e=>{addFiles(e.target.files);e.target.value="";}}/>
         <button onClick={scan} disabled={!imgs.length||status==="loading"} style={{...S.btn,width:"100%",marginTop:12,background:imgs.length?C.ink:C.line,color:imgs.length?"#fff":C.faint,fontSize:15,padding:"13px"}}>
           {status==="loading"?"Searching…":mode==="single"?"Scout this item →":"Find the gem →"}</button>
         {status==="loading"&&<div style={{fontSize:12,color:C.faint,marginTop:10,display:"flex",gap:8,alignItems:"center"}}><span style={{width:13,height:13,border:`2px solid ${C.line}`,borderTopColor:C.ink,borderRadius:"50%",display:"inline-block",animation:"spin .8s linear infinite"}}/>Identifying + checking sold prices — needs signal.</div>}
