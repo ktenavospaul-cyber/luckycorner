@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Full-bleed background so Android can crop to any shape; text kept inside the ~80% safe zone. -->
+  <rect width="512" height="512" fill="#18693E"/>
+  <text x="256" y="316" font-family="Georgia, 'Times New Roman', serif" font-size="196" font-weight="700" fill="#EAE8DF" text-anchor="middle" font-style="italic">LC</text>
+</svg>

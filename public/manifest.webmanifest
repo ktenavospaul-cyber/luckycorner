@@ -1,0 +1,15 @@
+{
+  "name": "Lucky Corner",
+  "short_name": "Lucky Corner",
+  "description": "Buy/skip calls for op-shop reselling — scan an item, get a confidence-weighted verdict, track what sells.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EAE8DF",
+  "theme_color": "#191B17",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
