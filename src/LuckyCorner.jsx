@@ -86,22 +86,22 @@ export default function LuckyCorner(){
         input:focus,select:focus{border-color:#2E9E67 !important}
         @keyframes spin{to{transform:rotate(360deg)}}@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}`}</style>
 
-      <div style={{padding:"16px 16px 8px",display:"flex",alignItems:"center",gap:10}}>
+      <div style={{background:"linear-gradient(135deg,#18693E 0%,#2E9E67 55%,#43C083 100%)",padding:"18px 16px 16px",display:"flex",alignItems:"center",gap:10,color:"#fff",borderBottomLeftRadius:20,borderBottomRightRadius:20,boxShadow:"0 4px 16px rgba(24,105,62,.28)"}}>
         <div style={{flex:1}}>
-          <div style={{fontSize:20,fontWeight:700,letterSpacing:"-0.02em"}}>Lucky Corner</div>
-          <div style={{fontSize:11.5,color:C.ink,fontStyle:"italic",fontWeight:600,marginTop:1}}>They're not lucky. They just know.</div>
+          <div style={{fontSize:22,fontWeight:800,letterSpacing:"-0.02em"}}>Lucky Corner</div>
+          <div style={{fontSize:11.5,color:"rgba(255,255,255,.92)",fontStyle:"italic",fontWeight:600,marginTop:2}}>They're not lucky. They just know.</div>
         </div>
-        <button onClick={()=>setEditingProfile(true)} style={{...S.btn,background:C.chip,color:C.ink,border:`1px solid ${C.line}`,fontSize:12,padding:"7px 10px"}}>Profile</button>
+        <button onClick={()=>setEditingProfile(true)} style={{...S.btn,background:"rgba(255,255,255,.18)",color:"#fff",border:"1px solid rgba(255,255,255,.4)",fontSize:12,padding:"7px 12px"}}>Profile</button>
       </div>
 
-      <div style={{padding:"0 16px"}}>
+      <div style={{padding:"14px 16px 0"}}>
         {tab==="scan" && <ScanTab S={S} profile={profile} onLog={(item)=>{setTracker(x=>[item,...x]);setTab("tracker");}}/>}
         {tab==="tracker" && <TrackerTab S={S} tracker={tracker} setTracker={setTracker}/>}
       </div>
 
       <div style={{position:"fixed",bottom:0,left:0,right:0,maxWidth:440,margin:"0 auto",background:C.card,borderTop:`1px solid ${C.line}`,display:"flex"}}>
         {[["scan","Scan","📷"],["tracker","Tracker","📊"]].map(([k,l,ic])=>(
-          <div key={k} onClick={()=>setTab(k)} style={{flex:1,textAlign:"center",padding:"10px 0",cursor:"pointer",color:tab===k?C.ink:C.faint,borderTop:tab===k?`2px solid ${C.ink}`:"2px solid transparent"}}>
+          <div key={k} onClick={()=>setTab(k)} style={{flex:1,textAlign:"center",padding:"10px 0",cursor:"pointer",color:tab===k?"#18693E":C.faint,borderTop:tab===k?"3px solid #18693E":"3px solid transparent"}}>
             <div style={{fontSize:18}}>{ic}</div><div style={{fontSize:10.5,fontWeight:tab===k?700:500,marginTop:1}}>{l}</div>
           </div>))}
       </div>
@@ -179,7 +179,7 @@ function Onboard({S,initial,onDone}){
       </div>
 
       <button onClick={()=>valid&&onDone({cats,other,goal,goalValue,minNet,maxDays,exp})} disabled={!valid}
-        style={{...S.btn,width:"100%",marginTop:14,background:valid?C.ink:C.line,color:valid?"#fff":C.faint,fontSize:15,padding:"14px"}}>Start scouting →</button>
+        style={{...S.btn,width:"100%",marginTop:14,background:valid?"linear-gradient(135deg,#18693E,#2E9E67)":C.line,color:valid?"#fff":C.faint,fontSize:15,padding:"14px",boxShadow:valid?"0 4px 12px rgba(24,105,62,.3)":"none"}}>Start scouting →</button>
     </div>
   );
 }
@@ -245,7 +245,7 @@ function ScanTab({S,profile,onLog}){
       <div style={{display:"flex",gap:7,marginBottom:12}}>
         {[["single","Single item"],["group","Group — find the gem"]].map(([k,l])=>(
           <div key={k} onClick={()=>{setMode(k);reset();}} style={{flex:1,textAlign:"center",padding:"9px 4px",borderRadius:10,fontSize:12.5,fontWeight:700,cursor:"pointer",
-            border:`1px solid ${mode===k?C.ink:C.line}`,background:mode===k?C.ink:"#fff",color:mode===k?"#fff":C.faint}}>{l}</div>
+            border:`1px solid ${mode===k?"#18693E":C.line}`,background:mode===k?"linear-gradient(135deg,#18693E,#2E9E67)":"#fff",color:mode===k?"#fff":C.faint}}>{l}</div>
         ))}
       </div>
 
@@ -265,7 +265,7 @@ function ScanTab({S,profile,onLog}){
           )}
         </div>
         <input ref={fileRef} type="file" accept="image/*" capture="environment" multiple style={{display:"none"}} onChange={e=>{addFiles(e.target.files);e.target.value="";}}/>
-        <button onClick={scan} disabled={!imgs.length||status==="loading"} style={{...S.btn,width:"100%",marginTop:12,background:imgs.length?C.ink:C.line,color:imgs.length?"#fff":C.faint,fontSize:15,padding:"13px"}}>
+        <button onClick={scan} disabled={!imgs.length||status==="loading"} style={{...S.btn,width:"100%",marginTop:12,background:imgs.length?"linear-gradient(135deg,#18693E,#2E9E67)":C.line,color:imgs.length?"#fff":C.faint,fontSize:15,padding:"13px",boxShadow:imgs.length?"0 4px 12px rgba(24,105,62,.3)":"none"}}>
           {status==="loading"?"Searching…":mode==="single"?"Scout this item →":"Find the gem →"}</button>
         {status==="loading"&&<div style={{fontSize:12,color:C.faint,marginTop:10,display:"flex",gap:8,alignItems:"center"}}><span style={{width:13,height:13,border:`2px solid ${C.line}`,borderTopColor:C.ink,borderRadius:"50%",display:"inline-block",animation:"spin .8s linear infinite"}}/>Identifying + checking sold prices — needs signal.</div>}
       </div>
@@ -416,9 +416,9 @@ function TrackerTab({S,tracker,setTracker}){
           {tracker.length>0&&<button onClick={exportCSV} style={{...S.btn,background:C.chip,color:C.ink,border:`1px solid ${C.line}`,fontSize:12,padding:"7px 10px"}}>Export CSV</button>}
         </div>
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          {[["sold",stats.sold],["open",stats.open],["didn't sell",stats.flops],["sell-through",stats.strate+"%"],["avg days",stats.avgDays??"—"],["spent",$(stats.spent)],["revenue",$(stats.revenue)]].map(([l,v])=>(
-            <div key={l} style={{flex:"1 0 28%",background:C.chip,borderRadius:10,padding:"9px 8px",textAlign:"center",border:`1px solid ${C.line}`}}>
-              <div style={{fontFamily:MONO,fontSize:16,fontWeight:700}}>{v}</div><div style={{fontSize:9.5,color:C.faint,textTransform:"uppercase",marginTop:2}}>{l}</div>
+          {[["sold",stats.sold,"#18693E","#EAF5EE"],["open",stats.open,"#C98A12","#FBF4E3"],["didn't sell",stats.flops,"#CE4130","#FBEBE7"],["sell-through",stats.strate+"%","#2E7DA8","#E7F1F8"],["avg days",stats.avgDays??"—","#7A5A9E","#F0EBF7"],["spent",$(stats.spent),"#59564C","#F1F0EA"],["revenue",$(stats.revenue),"#1C6A45","#E6F4EC"]].map(([l,v,fg,bgc])=>(
+            <div key={l} style={{flex:"1 0 28%",background:bgc,borderRadius:12,padding:"10px 8px",textAlign:"center",border:`1px solid ${fg}22`}}>
+              <div style={{fontFamily:MONO,fontSize:17,fontWeight:800,color:fg}}>{v}</div><div style={{fontSize:9.5,color:fg,opacity:.85,textTransform:"uppercase",marginTop:2,fontWeight:700}}>{l}</div>
             </div>
           ))}
         </div>
