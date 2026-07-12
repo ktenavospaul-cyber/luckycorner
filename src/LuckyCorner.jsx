@@ -235,6 +235,15 @@ function ScanTab({S,profile,onLog}){
   const B=prob?bandOf(prob.p):null;
   const ebayURL=(term)=>`https://www.ebay.com.au/sch/i.html?_nkw=${encodeURIComponent(term||"")}&_sacat=0&LH_Sold=1&LH_Complete=1`;
   const vintedURL=(term)=>`https://www.vinted.com.au/catalog?search_text=${encodeURIComponent(term||"")}`;
+  // All the places to sanity-check a price. eBay = sold listings (best signal); the rest are live asks.
+  const markets=(term)=>{const q=encodeURIComponent(term||"");return [
+    ["eBay sold",ebayURL(term)],
+    ["Vinted",vintedURL(term)],
+    ["Depop",`https://www.depop.com/search/?q=${q}`],
+    ["Gumtree",`https://www.gumtree.com.au/s-search.html?keywords=${q}`],
+    ["FB Market",`https://www.facebook.com/marketplace/search/?query=${q}`],
+    ["Google",`https://www.google.com/search?q=${q}+sold+price`],
+  ];};
 
   function logIt(){
     if(!edit)return;
@@ -294,9 +303,11 @@ function ScanTab({S,profile,onLog}){
             <div style={{fontSize:18,fontWeight:800,marginTop:3}}>{res.gem.item}</div>
             <div style={{fontSize:13,opacity:.9,marginTop:4,lineHeight:1.4}}>{res.gem.why}</div>
             <div style={{fontFamily:MONO,fontSize:14,marginTop:8}}>~{$(res.gem.resaleTypical)} · sells {res.gem.demand}</div>
-            <div style={{display:"flex",gap:8,marginTop:12}}>
-              <a href={ebayURL(res.gem.searchTerm)} target="_blank" rel="noreferrer" style={{...S.btn,flex:1,textAlign:"center",textDecoration:"none",background:"rgba(255,255,255,.16)",color:"#fff"}}>eBay sold ↗</a>
-              <a href={vintedURL(res.gem.searchTerm)} target="_blank" rel="noreferrer" style={{...S.btn,flex:1,textAlign:"center",textDecoration:"none",background:"rgba(255,255,255,.16)",color:"#fff"}}>Vinted ↗</a>
+            <div style={{fontSize:10.5,opacity:.8,marginTop:12,marginBottom:6,textTransform:"uppercase",letterSpacing:".06em",fontWeight:700}}>Check prices</div>
+            <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+              {markets(res.gem.searchTerm).map(([label,href])=>(
+                <a key={label} href={href} target="_blank" rel="noreferrer" style={{...S.btn,flex:"1 0 30%",textAlign:"center",textDecoration:"none",background:"rgba(255,255,255,.18)",color:"#fff",fontSize:12,padding:"9px 6px"}}>{label} ↗</a>
+              ))}
             </div>
           </div>
           {Array.isArray(res.others)&&res.others.length>0&&(
@@ -336,9 +347,11 @@ function ScanTab({S,profile,onLog}){
               <div><label style={S.lab}>Tag price $</label><input type="number" style={S.inp} value={edit.tag} placeholder="?" onChange={e=>setEdit({...edit,tag:e.target.value})}/></div>
               <div><label style={S.lab}>Est. resale $</label><input type="number" style={S.inp} value={edit.resale} onChange={e=>setEdit({...edit,resale:e.target.value})}/></div>
             </div>
-            <div style={{display:"flex",gap:8,marginTop:12}}>
-              <a href={ebayURL(res.searchTerm||edit.brand)} target="_blank" rel="noreferrer" style={{...S.btn,flex:1,textAlign:"center",textDecoration:"none",background:C.chip,color:C.ink,border:`1px solid ${C.line}`}}>eBay sold ↗</a>
-              <a href={vintedURL(res.searchTerm||edit.brand)} target="_blank" rel="noreferrer" style={{...S.btn,flex:1,textAlign:"center",textDecoration:"none",background:C.chip,color:C.ink,border:`1px solid ${C.line}`}}>Vinted ↗</a>
+            <div style={{...S.lab,marginTop:12,marginBottom:6}}>Check prices on</div>
+            <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+              {markets(res.searchTerm||edit.brand).map(([label,href])=>(
+                <a key={label} href={href} target="_blank" rel="noreferrer" style={{...S.btn,flex:"1 0 30%",textAlign:"center",textDecoration:"none",background:C.chip,color:C.ink,border:`1px solid ${C.line}`,fontSize:12,padding:"9px 6px"}}>{label} ↗</a>
+              ))}
             </div>
           </div>
 
