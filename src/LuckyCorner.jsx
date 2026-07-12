@@ -373,6 +373,14 @@ function TrackerTab({S,tracker,setTracker}){
   const [sp,setSp]=useState(""); const [dd,setDd]=useState(""); const [pf,setPf]=useState("eBay");
   const [review,setReview]=useState(false);
   const [snoozed,setSnoozed]=useState(false);
+  const [listId,setListId]=useState(null);
+  const [draft,setDraft]=useState({title:"",price:"",desc:""});
+  // Marketplaces "post an item" pages. These platforms have no listing API, so we
+  // auto-fill the listing text, copy it, and open their create page for one paste.
+  const SELL=[["eBay","https://www.ebay.com.au/sl/sell"],["Vinted","https://www.vinted.com.au/items/new"],["Depop","https://www.depop.com/sell/"],["FB Market","https://www.facebook.com/marketplace/create/item"],["Gumtree","https://www.gumtree.com.au/p-post-ad.html"]];
+  const copyText=(s)=>{try{navigator.clipboard&&navigator.clipboard.writeText(s);}catch{}};
+  const listingText=(d)=>`${d.title}\n\nPrice: $${d.price}\n\n${d.desc}`;
+  const openList=(t)=>{setListId(x=>x===t.id?null:t.id);setDraft({title:t.item||"",price:t.resale?String(t.resale):"",desc:`${t.item||"Item"}${t.category?" — "+t.category:""}. Pre-owned, in good condition. Clean and ready to use. Fast dispatch — happy to answer any questions.`});};
 
   // "Remind, don't nag": only nudge about items open AND listed long enough to plausibly have sold (>=10 days).
   const ripe=tracker.filter(t=>t.status==="bought"&&daysSince(t.date)>=10);
@@ -468,10 +476,31 @@ function TrackerTab({S,tracker,setTracker}){
             <span onClick={()=>del(t.id)} style={{color:C.faint,cursor:"pointer",fontSize:14}}>✕</span>
           </div>
           {t.status==="bought"&&closing!==t.id&&(
-            <div style={{display:"flex",gap:8,marginTop:10}}>
-              <button onClick={()=>setClosing(t.id)} style={{...S.btn,flex:1,fontSize:12,background:"#18693E",color:"#fff"}}>It sold ✓</button>
-              <button onClick={()=>markUnsold(t.id)} style={{...S.btn,flex:1,fontSize:12,background:C.chip,color:C.faint,border:`1px solid ${C.line}`}}>Didn't sell</button>
-            </div>
+            <>
+              <button onClick={()=>openList(t)} style={{...S.btn,width:"100%",marginTop:10,fontSize:12.5,background:"linear-gradient(135deg,#2E7DA8,#41A6D6)",color:"#fff",boxShadow:"0 3px 10px rgba(46,125,168,.28)"}}>📤 List it for sale</button>
+              {listId===t.id&&(
+                <div style={{marginTop:10,padding:12,background:C.chip,borderRadius:12,border:`1px solid ${C.line}`}}>
+                  <label style={S.lab}>Title</label>
+                  <input style={S.inp} value={draft.title} onChange={e=>setDraft({...draft,title:e.target.value})}/>
+                  <label style={{...S.lab,marginTop:8}}>Price $</label>
+                  <input type="number" inputMode="decimal" style={S.inp} value={draft.price} onChange={e=>setDraft({...draft,price:e.target.value})}/>
+                  <label style={{...S.lab,marginTop:8}}>Description</label>
+                  <textarea rows={4} style={{...S.inp,resize:"vertical",lineHeight:1.4}} value={draft.desc} onChange={e=>setDraft({...draft,desc:e.target.value})}/>
+                  <button onClick={()=>copyText(listingText(draft))} style={{...S.btn,width:"100%",marginTop:8,fontSize:12.5,background:C.ink,color:"#fff"}}>📋 Copy full listing</button>
+                  <div style={{fontSize:10.5,color:C.faint,marginTop:10,marginBottom:6,lineHeight:1.4}}>Tap a marketplace — it copies your listing and opens its post page. Paste (long-press → Paste) into the description.</div>
+                  <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+                    {SELL.map(([label,url])=>(
+                      <button key={label} onClick={()=>{copyText(listingText(draft));window.open(url,"_blank","noopener");}} style={{...S.btn,flex:"1 0 30%",fontSize:12,padding:"9px 6px",background:"#fff",color:C.ink,border:`1px solid ${C.line}`}}>{label} ↗</button>
+                    ))}
+                  </div>
+                  <button onClick={()=>setListId(null)} style={{...S.btn,width:"100%",marginTop:8,fontSize:11.5,background:"transparent",color:C.faint,border:`1px solid ${C.line}`}}>Close</button>
+                </div>
+              )}
+              <div style={{display:"flex",gap:8,marginTop:8}}>
+                <button onClick={()=>setClosing(t.id)} style={{...S.btn,flex:1,fontSize:12,background:"#18693E",color:"#fff"}}>It sold ✓</button>
+                <button onClick={()=>markUnsold(t.id)} style={{...S.btn,flex:1,fontSize:12,background:C.chip,color:C.faint,border:`1px solid ${C.line}`}}>Didn't sell</button>
+              </div>
+            </>
           )}
           {closing===t.id&&(
             <div style={{marginTop:10,padding:10,background:C.chip,borderRadius:10}}>
