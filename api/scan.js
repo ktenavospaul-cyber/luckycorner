@@ -92,10 +92,10 @@ export default async function handler(req, res) {
         max_tokens: 1500,
         system,
         messages: [{ role: "user", content }],
-        // Speed: no extended thinking for a fast verdict.
+        // Speed: no extended thinking, no live web search (each search added ~20s).
+        // The model gives an instant expert estimate; users verify real sold prices
+        // via the in-app "Check prices" links only when it matters.
         thinking: { type: "disabled" },
-        // Web search is the main latency; one quick price check keeps it fast + grounded.
-        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 1 }],
         // effort:low = terser/faster; format guarantees valid JSON in our exact shape.
         output_config: { effort: "low", format: { type: "json_schema", schema: mode === "group" ? GROUP_SCHEMA : SINGLE_SCHEMA } },
       }),
