@@ -191,6 +191,7 @@ function ScanTab({S,profile,onLog}){
   const [res,setRes]=useState(null);
   const [err,setErr]=useState("");
   const [edit,setEdit]=useState(null);
+  const [tagPrice,setTagPrice]=useState("");
   const fileRef=useRef(null);
   const galleryRef=useRef(null);
 
@@ -201,7 +202,7 @@ function ScanTab({S,profile,onLog}){
     setImgs(p=>[...p,...read].slice(0,cap));
   }
   const rmImg=(i)=>setImgs(p=>p.filter((_,x)=>x!==i));
-  const reset=()=>{setImgs([]);setRes(null);setStatus("idle");setEdit(null);setErr("");};
+  const reset=()=>{setImgs([]);setRes(null);setStatus("idle");setEdit(null);setErr("");setTagPrice("");};
 
   async function scan(){
     if(!imgs.length)return;
@@ -220,7 +221,7 @@ function ScanTab({S,profile,onLog}){
       if(!r.ok)throw new Error(data?.error||("Search returned "+r.status));
       const text=(data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
       const j=parseJSON(text); setRes(j);
-      if(mode==="single") setEdit({brand:j.item||"",category:j.category||"",tag:"",resale:String(Math.round(j.resaleTypical||0)),bulk:j.bulk||"standard"});
+      if(mode==="single") setEdit({brand:j.item||"",category:j.category||"",tag:tagPrice,resale:String(Math.round(j.resaleTypical||0)),bulk:j.bulk||"standard"});
       setStatus("done");
     }catch(e){setErr(e.message||"error");setStatus("error");}
   }
@@ -268,6 +269,16 @@ function ScanTab({S,profile,onLog}){
         </div>
         <input ref={fileRef} type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={e=>{addFiles(e.target.files);e.target.value="";}}/>
         <input ref={galleryRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={e=>{addFiles(e.target.files);e.target.value="";}}/>
+        {mode==="single"&&(
+          <div style={{marginTop:12,display:"flex",alignItems:"center",gap:10}}>
+            <label style={{...S.lab,marginBottom:0,flexShrink:0}}>What you'd pay</label>
+            <div style={{display:"flex",alignItems:"center",flex:1,border:`1px solid ${C.line}`,borderRadius:9,background:"#fff",overflow:"hidden"}}>
+              <span style={{padding:"9px 4px 9px 10px",color:C.faint,fontWeight:700}}>$</span>
+              <input type="number" inputMode="decimal" placeholder="tag price" value={tagPrice} onChange={e=>setTagPrice(e.target.value)}
+                style={{border:"none",outline:"none",flex:1,fontSize:15,fontWeight:700,padding:"9px 10px 9px 0",width:"100%",fontFamily:FONT,color:C.ink,background:"transparent"}}/>
+            </div>
+          </div>
+        )}
         <button onClick={scan} disabled={!imgs.length||status==="loading"} style={{...S.btn,width:"100%",marginTop:12,background:imgs.length?"linear-gradient(135deg,#18693E,#2E9E67)":C.line,color:imgs.length?"#fff":C.faint,fontSize:15,padding:"13px",boxShadow:imgs.length?"0 4px 12px rgba(24,105,62,.3)":"none"}}>
           {status==="loading"?"Searching…":mode==="single"?"Scout this item →":"Find the gem →"}</button>
         {status==="loading"&&<div style={{fontSize:12,color:C.faint,marginTop:10,display:"flex",gap:8,alignItems:"center"}}><span style={{width:13,height:13,border:`2px solid ${C.line}`,borderTopColor:C.ink,borderRadius:"50%",display:"inline-block",animation:"spin .8s linear infinite"}}/>Identifying + checking sold prices — needs signal.</div>}
