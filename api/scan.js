@@ -89,13 +89,15 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         // Sonnet 5: near-Opus quality on vision + pricing at a fraction of the cost.
         model: "claude-sonnet-5",
-        max_tokens: 3000,
+        max_tokens: 1500,
         system,
         messages: [{ role: "user", content }],
-        // Latest web-search tool (dynamic filtering); cap uses to bound per-scan cost.
-        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 3 }],
-        // Guarantee the final answer is valid JSON in our exact shape.
-        output_config: { format: { type: "json_schema", schema: mode === "group" ? GROUP_SCHEMA : SINGLE_SCHEMA } },
+        // Speed: no extended thinking for a fast verdict.
+        thinking: { type: "disabled" },
+        // Web search is the main latency; one quick price check keeps it fast + grounded.
+        tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 1 }],
+        // effort:low = terser/faster; format guarantees valid JSON in our exact shape.
+        output_config: { effort: "low", format: { type: "json_schema", schema: mode === "group" ? GROUP_SCHEMA : SINGLE_SCHEMA } },
       }),
     });
 
